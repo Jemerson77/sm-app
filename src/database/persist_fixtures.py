@@ -23,7 +23,7 @@ def upsert_fixtures(conn, fixtures_data):
         cursor = conn.cursor()
         # Colunas conforme create_tables_fixtures.sql
         sql = """
-        INSERT INTO Partidas (
+        INSERT INTO "Partidas" (
             id_partida, id_liga, id_temporada, id_estadio, id_time_casa, 
             id_time_visitante, data_hora_inicio, id_status_partida, 
             placar_casa, placar_visitante, placar_agregado_casa, 
@@ -105,7 +105,7 @@ def upsert_fixture_translations(conn, translations_data):
     try:
         cursor = conn.cursor()
         sql = """
-        INSERT INTO Partidas_Traducoes (id_partida, codigo_idioma, nome_partida_traduzido)
+        INSERT INTO "Partidas_Traducoes" (id_partida, codigo_idioma, nome_partida_traduzido)
         VALUES (%s, %s, %s)
         ON CONFLICT (id_partida, codigo_idioma)
         DO UPDATE SET
