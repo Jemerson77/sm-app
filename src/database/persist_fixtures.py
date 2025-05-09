@@ -21,7 +21,6 @@ def upsert_fixtures(conn, fixtures_data):
 
     try:
         cursor = conn.cursor()
-        # Colunas conforme create_tables_fixtures.sql
         sql = """
         INSERT INTO "Partidas" (
             id_partida, id_liga, id_temporada, id_estadio, id_time_casa, 
@@ -50,7 +49,6 @@ def upsert_fixtures(conn, fixtures_data):
         """
         for fixture in fixtures_data:
             try:
-                # Convertendo informacoes_adicionais para JSON string se for um dict
                 info_adicionais = fixture.get('informacoes_adicionais')
                 if isinstance(info_adicionais, dict):
                     import json
@@ -70,7 +68,7 @@ def upsert_fixtures(conn, fixtures_data):
                     fixture.get('placar_agregado_casa'),
                     fixture.get('placar_agregado_visitante'),
                     fixture.get('nome_arbitro'),
-                    info_adicionais, # Já convertido para JSON string ou None
+                    info_adicionais,
                     datetime.now()
                 ))
                 success_count += 1
@@ -91,9 +89,6 @@ def upsert_fixtures(conn, fixtures_data):
     return success_count, failure_count
 
 def upsert_fixture_translations(conn, translations_data):
-    """
-    Insere ou atualiza dados na tabela Partidas_Traducoes.
-    """
     if not translations_data:
         logging.info("Nenhum dado de tradução de partida para processar.")
         return 0, 0
@@ -136,47 +131,39 @@ def upsert_fixture_translations(conn, translations_data):
     return success_count, failure_count
 
 if __name__ == "__main__":
-    logging.info("Iniciando script de persistência de Partidas (exemplo)...")
+    logging.info("Iniciando script de persistência de Partidas (exemplo ajustado)...")
     
+    # IDs confirmados pelo usuário:
+    # id_liga: 8, 501
+    # id_temporada: 19734, 21646, 21833
+    # id_time: 101, 102
+    # id_status_partida: 1, 17 (e outros de persist_status_partida.py)
+
     sample_processed_fixtures_data = {
         "main_data": [
             {
-                'id_partida': 1001,
-                'id_liga': 8, # Ex: Premier League
-                'id_temporada': 21646, # Ex: Temporada 2023/2024 da Premier League
-                'id_estadio': 201, # Ex: Anfield
-                'id_time_casa': 101, # Ex: Liverpool
-                'id_time_visitante': 102, # Ex: Chelsea
-                'data_hora_inicio': '2024-08-17T14:00:00Z', # Formato ISO 8601
-                'id_status_partida': 1, # Ex: Não Iniciada (NS)
+                'id_partida': 1001, # ID da partida de exemplo
+                'id_liga': 8,      # ID de liga existente
+                'id_temporada': 21646, # ID de temporada existente
+                'id_estadio': 201, # ID do estádio (não é FK crítica neste momento)
+                'id_time_casa': 101, # ID de time existente
+                'id_time_visitante': 102, # ID de time existente
+                'data_hora_inicio': '2024-08-17T14:00:00Z',
+                'id_status_partida': 1, # ID de status existente (Não Iniciada)
                 'placar_casa': None,
                 'placar_visitante': None,
                 'placar_agregado_casa': None,
                 'placar_agregado_visitante': None,
                 'nome_arbitro': 'Michael Oliver',
                 'informacoes_adicionais': {'rodada': 1, 'clima': 'Ensolarado'}
-            },
-            {
-                'id_partida': 1002,
-                'id_liga': 82, # Ex: Bundesliga
-                'id_temporada': 21833, # Ex: Temporada 2023/2024 da Bundesliga
-                'id_estadio': 301, # Ex: Allianz Arena
-                'id_time_casa': 201, # Ex: Bayern Munich
-                'id_time_visitante': 202, # Ex: Borussia Dortmund
-                'data_hora_inicio': '2024-08-18T18:30:00Z',
-                'id_status_partida': 17, # Ex: Finalizada (FT)
-                'placar_casa': 2,
-                'placar_visitante': 1,
-                'placar_agregado_casa': None,
-                'placar_agregado_visitante': None,
-                'nome_arbitro': 'Felix Brych',
-                'informacoes_adicionais': None
             }
+            # Removida a segunda partida de exemplo para simplificar o teste inicial
+            # com IDs 100% confirmados.
         ],
         "translations_data": [
-            {'id_partida': 1001, 'codigo_idioma': 'pt', 'nome_partida_traduzido': 'Liverpool vs Chelsea (PT)'},
-            {'id_partida': 1001, 'codigo_idioma': 'en', 'nome_partida_traduzido': 'Liverpool vs Chelsea (EN)'},
-            {'id_partida': 1002, 'codigo_idioma': 'pt', 'nome_partida_traduzido': 'Bayern de Munique vs Borussia Dortmund (PT)'},
+            {'id_partida': 1001, 'codigo_idioma': 'pt', 'nome_partida_traduzido': 'Time Exemplo A vs Time Exemplo B (PT)'},
+            {'id_partida': 1001, 'codigo_idioma': 'en', 'nome_partida_traduzido': 'Example Team A vs Example Team B (EN)'},
+            # Removida tradução da segunda partida
         ]
     }
 
@@ -193,7 +180,7 @@ if __name__ == "__main__":
             logging.info("Processando traduções das Partidas...")
             upsert_fixture_translations(conn, translations_to_persist)
             
-            logging.info("Script de persistência de Partidas (exemplo) concluído.")
+            logging.info("Script de persistência de Partidas (exemplo ajustado) concluído.")
         else:
             logging.error("Não foi possível conectar ao banco de dados.")
     except Exception as e:
